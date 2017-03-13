@@ -1,0 +1,36 @@
+language: java
+
+before_cache:
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+    - $HOME/.zinc
+
+install:
+  - java -XX:+PrintFlagsFinal -version
+  - mvn --version
+  # Workaround to avoid build timeout
+  #- mvn compile -Ptravis --fail-never --update-snapshots --settings .travis.settings.xml -e
+  #- mvn test-compile -Ptravis --fail-never --update-snapshots --settings .travis.settings.xml -e
+
+env:
+  matrix:
+    - SUBDIR="activator"
+    - SUBDIR="play21"
+    - SUBDIR="play22"
+    - SUBDIR="play23"
+    - SUBDIR="play24"
+    - SUBDIR="play25"
+    - SUBDIR="play26"
+    - SUBDIR="reporting"
+
+script:
+  - mvn verify --file $SUBDIR/pom.xml -Ptravis --update-snapshots --settings .travis.settings.xml -e
+
+jdk: oraclejdk8
